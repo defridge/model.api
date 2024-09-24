@@ -3,12 +3,19 @@ from flask import Flask, request, jsonify
 from flask_cors import CORS
 import joblib
 import pandas as pd
+from sklearn.metrics import mean_squared_error, r2_score
 
 app = Flask(__name__)
 CORS(app)
 
 # Load the trained XGBoost model
 model = joblib.load('models/xgb_model.pkl')
+
+# Load the datasets
+X_train = pd.read_csv('datasets/X_train.csv')
+y_train = pd.read_csv('datasets/y_train.csv')
+X_test = pd.read_csv('datasets/X_test.csv')
+y_test = pd.read_csv('datasets/y_test.csv')
 
 # Define the expected feature names based on your model
 expected_features = ['1stFlrSF', '2ndFlrSF', 'BedroomAbvGr', 'BsmtExposure', 'BsmtFinSF1', 'BsmtFinType1', 
@@ -55,6 +62,37 @@ def predict():
             
             # Return the prediction as JSON
             return jsonify({'prediction': prediction})
+
+    except Exception as e:
+        return jsonify({'error': str(e)}), 400
+
+# Route to fetch model performance metrics
+@app.route('/model_performance', methods=['GET'])
+def model_performance():
+    try:
+        # Get predictions for both training and testing data
+        y_train_pred = model.predict(X_train)
+        y_test_pred = model.predict(X_test)
+
+        # Calculate metrics for training data
+        train_r2 = r2_score(y_train, y_train_pred)
+        train_mse = mean_squared_error(y_train, y_train_pred)
+
+        # Calculate metrics for testing data
+        test_r2 = r2_score(y_test, y_test_pred)
+        test_mse = mean_squared_error(y_test, y_test_pred)
+
+        # Return metrics and predictions
+        return jsonify({
+            'train_r2': train_r2,
+            'train_mse': train_mse,
+            'test_r2': test_r2,
+            'test_mse': test_mse,
+            'y_train_pred': y_train_pred.tolist(),
+            'y_test_pred': y_test_pred.tolist(),
+            'y_train': y_train.squeeze().tolist(),
+            'y_test': y_test.squeeze().tolist()
+        })
 
     except Exception as e:
         return jsonify({'error': str(e)}), 400
