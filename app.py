@@ -26,21 +26,35 @@ def predict():
         # Get the input data from the request
         data = request.get_json()
 
-        # Create a DataFrame from the input data
-        input_data = pd.DataFrame([data])
+        # Check if the data is a list (for multiple house predictions)
+        if isinstance(data, list):
+            # Create a DataFrame from the list of inputs
+            input_data = pd.DataFrame(data)
+            
+            # Align the input data with the expected features
+            input_data = input_data.reindex(columns=expected_features, fill_value=0)
+            
+            # Predict the sale prices for each house
+            predictions = model.predict(input_data).tolist()
 
-        # Align the input data with the expected features
-        # Fill missing features with default values (e.g., 0 for numeric fields)
-        input_data = input_data.reindex(columns=expected_features, fill_value=0)
-
-        # Predict the sale price using the model
-        prediction = model.predict(input_data)[0]
-
-        # Convert the prediction to a Python float (so it can be serialized to JSON)
-        prediction = float(prediction)
-
-        # Return the prediction as JSON
-        return jsonify({'prediction': prediction})
+            # Return the predictions as JSON
+            return jsonify({'predictions': predictions})
+        
+        else:
+            # If it's a single prediction, handle it as before
+            input_data = pd.DataFrame([data])
+            
+            # Align the input data with the expected features
+            input_data = input_data.reindex(columns=expected_features, fill_value=0)
+            
+            # Predict the sale price using the model
+            prediction = model.predict(input_data)[0]
+            
+            # Convert the prediction to a Python float (so it can be serialized to JSON)
+            prediction = float(prediction)
+            
+            # Return the prediction as JSON
+            return jsonify({'prediction': prediction})
 
     except Exception as e:
         return jsonify({'error': str(e)}), 400
