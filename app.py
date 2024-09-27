@@ -17,7 +17,7 @@ y_train = pd.read_csv('datasets/y_train.csv')
 X_test = pd.read_csv('datasets/X_test.csv')
 y_test = pd.read_csv('datasets/y_test.csv')
 
-# Define the expected feature names based on your model
+# Define the expected feature names based on the model
 expected_features = ['1stFlrSF', '2ndFlrSF', 'BedroomAbvGr', 'BsmtExposure', 'BsmtFinSF1', 'BsmtFinType1', 
                      'BsmtUnfSF', 'EnclosedPorch', 'GarageArea', 'GarageFinish', 'GarageYrBlt', 'GrLivArea', 
                      'KitchenQual', 'LotArea', 'LotFrontage', 'MasVnrArea', 'OpenPorchSF', 'OverallCond', 
