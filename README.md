@@ -7,7 +7,6 @@ This Flask API was developed as part of the Heritage Housing project to predict 
 1. [Project Summary](#project-summary)
 2. [Features](#features)
 3. [API Endpoints](#api-endpoints)
-4. [Usage](#usage)
 
 
 ## Project Summary
